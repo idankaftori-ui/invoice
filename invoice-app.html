@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0f1117">
+<title>ספר תקבולים</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--s1:#171b26;--s2:#1e2436;--card:#1a1f30;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --g:#22c55e;--gd:rgba(34,197,94,.12);--gb:rgba(34,197,94,.3);
+  --a:#f59e0b;--ad:rgba(245,158,11,.12);
+  --b:#3b82f6;--bd:rgba(59,130,246,.12);
+  --p:#a855f7;--pd:rgba(168,85,247,.12);
+  --r:#ef4444;--rd:rgba(239,68,68,.1);
+  --t1:#f0f4ff;--t2:#8895b3;--t3:#3d4a66;
+  --rad:14px;--rad-sm:9px;
+  --ff:-apple-system,'SF Pro Text','Segoe UI',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--ff);overflow:hidden}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:440px;margin:0 auto;position:relative;overflow:hidden}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;overflow:hidden}
+.sc.off{transform:translateX(110%);opacity:0;pointer-events:none}
+.hdr{padding:calc(env(safe-area-inset-top,0px)+12px) 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr h1{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.hdr .sub{font-size:11px;color:var(--t2);margin-top:1px}
+.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(env(safe-area-inset-bottom,0px)+80px)}
+.pad{padding:0 18px}
+.icon-btn{width:36px;height:36px;border-radius:50%;background:var(--s1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:var(--rad-sm);border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;width:100%;font-family:var(--ff)}
+.btn:active{transform:scale(.97)}
+.btn-g{background:var(--g);color:#fff}
+.btn-g:disabled{background:#1e4a2a;color:#3a7a4a;cursor:not-allowed;transform:none}
+.btn-o{background:transparent;color:var(--t1);border:1px solid var(--border2)}
+.btn-ghost{background:transparent;color:var(--t2);font-size:13px;font-weight:500}
+.btn-r{background:var(--rd);color:var(--r);border:1px solid rgba(239,68,68,.22)}
+.btn-a{background:var(--ad);color:var(--a);border:1px solid rgba(245,158,11,.3)}
+.card{background:var(--card);border-radius:var(--rad);padding:16px;border:1px solid var(--border)}
+.card+.card{margin-top:10px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--s1);border:1px solid var(--border2);border-radius:var(--rad-sm);padding:12px 14px;color:var(--t1);font-size:15px;outline:none;transition:border-color .15s;font-family:var(--ff);-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--g)}
+.field input::placeholder,.field textarea::placeholder{color:var(--t3)}
+.field select option{background:#1a1f30}
+.field textarea{resize:none;height:72px;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:14px 18px}
+.stat{background:var(--s1);border-radius:var(--rad-sm);padding:12px 10px;border:1px solid var(--border);text-align:center}
+.stat-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.stat-val{font-size:18px;font-weight:700}
+.sv-g{color:var(--g)}.sv-a{color:var(--a)}.sv-b{color:var(--b)}
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.tab{flex-shrink:0;padding:11px 12px;text-align:center;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab.on{color:var(--g);border-bottom-color:var(--g)}
+.item{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer}
+.item:active{background:var(--s1)}
+.item-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.ico-exp{background:var(--ad)}.ico-inc{background:var(--gd)}.ico-man{background:var(--bd)}.ico-doc{background:var(--pd)}
+.item-inf{flex:1;min-width:0}
+.item-sup{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-meta{font-size:12px;color:var(--t2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-amt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+.amt-exp{color:var(--a)}.amt-inc{color:var(--g)}.amt-man{color:var(--b)}.amt-doc{color:var(--p)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600}
+.badge-g{background:var(--gd);color:var(--g)}.badge-a{background:var(--ad);color:var(--a)}.badge-b{background:var(--bd);color:var(--b)}.badge-p{background:var(--pd);color:var(--p)}
+.proc-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:20px;padding:40px 24px;text-align:center}
+.spin{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prog-bar{width:100%;max-width:280px;height:4px;background:var(--s2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--g);border-radius:2px;transition:width .4s}
+.dr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.dr:last-child{border:none}
+.dr-lbl{font-size:13px;color:var(--t2)}
+.dr-val{font-size:14px;font-weight:500}
+.money{color:var(--g);font-size:18px;font-weight:700}
+#sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:50;display:none;align-items:flex-end}
+#sheet-overlay.open{display:flex}
+#sheet{background:var(--s1);border-radius:20px 20px 0 0;padding:0 0 calc(env(safe-area-inset-bottom,0px)+16px);width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#sheet-overlay.open #sheet{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 6px}
+.sheet-title{font-size:13px;font-weight:600;color:var(--t2);text-align:center;padding:4px 0 12px;letter-spacing:.5px}
+.sheet-section{padding:10px 18px 4px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
+.sheet-btn{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;transition:background .12s}
+.sheet-btn:active{background:var(--s2)}
+.sheet-btn-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sheet-btn-txt{font-size:14px;font-weight:500;color:var(--t1)}
+.sheet-btn-sub{font-size:12px;color:var(--t2);margin-top:1px}
+.sbi-exp{background:var(--ad)}.sbi-inc{background:var(--gd)}.sbi-cam{background:rgba(139,92,246,.15)}
+.sbi-man{background:var(--bd)}.sbi-dr{background:rgba(6,182,212,.12)}.sbi-doc{background:var(--pd)}
+.sheet-divider{height:1px;background:var(--border);margin:6px 18px}
+#fab{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px)+20px);left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:var(--g);border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;font-family:var(--ff);transition:transform .15s}
+#fab:active{transform:translateX(-50%) scale(.93)}
+.drive-file{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.drive-file:last-child{border:none}
+.drive-file-name{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drive-file-status{font-size:11px;padding:3px 8px;border-radius:999px;flex-shrink:0}
+.dfs-wait{background:var(--s2);color:var(--t3)}.dfs-proc{background:var(--bd);color:var(--b)}.dfs-ok{background:var(--gd);color:var(--g)}.dfs-skip{background:var(--ad);color:var(--a)}.dfs-err{background:var(--rd);color:var(--r)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:60px 30px;color:var(--t3);text-align:center}
+.empty p{font-size:14px;line-height:1.6;color:var(--t2)}
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.set-row:last-child{border:none}
+.manual-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bd);color:var(--b);margin-left:6px}
+.doc-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--pd);color:var(--p);margin-left:6px}
+/* duplicate modal */
+#dup-modal{position:absolute;inset:0;background:rgba(0,0,0,.7);z-index:80;display:none;align-items:center;justify-content:center;padding:24px}
+#dup-modal.open{display:flex}
+#dup-box{background:var(--card);border-radius:var(--rad);padding:24px 20px;width:100%;border:1px solid var(--border2);text-align:center}
+#dup-box h3{font-size:16px;font-weight:600;margin-bottom:8px}
+#dup-box p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px}
+.wiz-steps{display:flex;padding:14px 18px 0;gap:6px;flex-shrink:0}
+.wiz-step{flex:1;height:3px;border-radius:2px;background:var(--s2);transition:background .3s}
+.wiz-step.done{background:var(--g)}
+.wiz-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 18px 32px}
+.note{background:var(--s1);border-radius:var(--rad-sm);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.55;border-right:3px solid var(--g)}
+.step-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:13px}
+.step-num{width:27px;height:27px;border-radius:50%;background:var(--gd);color:var(--g);font-size:12px;font-weight:700;border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-txt h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.step-txt p{font-size:13px;color:var(--t2);line-height:1.5}
+.link-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bd);border:1px solid rgba(59,130,246,.3);border-radius:var(--rad-sm);color:var(--b);font-size:13px;font-weight:500;cursor:pointer;margin:4px 0}
+.copy-row{display:flex;gap:8px;margin-top:8px}
+.copy-row input{flex:1;background:var(--s1);border:1px solid var(--border2);border-radius:var(--rad-sm);padding:10px 12px;color:var(--t2);font-size:12px;outline:none;font-family:monospace}
+.copy-btn{padding:10px 14px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rad-sm);color:var(--t2);font-size:12px;cursor:pointer;flex-shrink:0}
+.sec-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+28px);left:50%;transform:translateX(-50%) translateY(14px);background:rgba(20,25,40,.97);border:1px solid var(--border2);color:var(--t1);padding:10px 20px;border-radius:999px;font-size:14px;transition:all .25s;z-index:100;opacity:0;white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.gap8{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- WIZARD -->
+<div class="sc" id="sc-wizard">
+  <div class="hdr"><div><h1>הגדרה ראשונית</h1><div class="sub">חד פעמי · 3 דקות</div></div></div>
+  <div class="wiz-steps" id="wiz-steps"></div>
+  <div class="wiz-body" id="wiz-body"></div>
+</div>
+
+<!-- AUTH -->
+<div class="sc off" id="sc-auth">
+  <div class="proc-wrap">
+    <div style="font-size:52px">🔐</div>
+    <div style="font-size:17px;font-weight:600">כניסה לחשבון Google</div>
+    <div style="font-size:14px;color:var(--t2);text-align:center;line-height:1.6;max-width:240px">נדרש לשמירת קבצים ב-Drive<br>ועדכון ספר התקבולים ב-Sheets</div>
+    <button class="btn btn-g" style="max-width:230px" onclick="doAuth()">כניסה עם Google</button>
+    <button class="btn btn-ghost" onclick="go('sc-wizard')">חזרה להגדרות</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="sc off" id="sc-main">
+  <div class="hdr">
+    <div><h1>ספר תקבולים</h1><div class="sub" id="main-email"></div></div>
+    <div class="icon-btn" onclick="go('sc-settings')">⚙️</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-lbl">הכנסות</div><div class="stat-val sv-g" id="s-inc">₪0</div></div>
+    <div class="stat"><div class="stat-lbl">הוצאות</div><div class="stat-val sv-a" id="s-exp">₪0</div></div>
+    <div class="stat"><div class="stat-lbl">מאזן</div><div class="stat-val sv-b" id="s-bal">₪0</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on" id="tab-all" onclick="setTab('all')">הכל</div>
+    <div class="tab" id="tab-exp" onclick="setTab('expense')">הוצאות</div>
+    <div class="tab" id="tab-inc" onclick="setTab('income')">הכנסות</div>
+    <div class="tab" id="tab-man" onclick="setTab('manual')">ידני</div>
+    <div class="tab" id="tab-doc" onclick="setTab('doc')">דוח שנתי</div>
+  </div>
+  <div class="body" id="main-list"></div>
+  <button id="fab" onclick="openSheet()">+</button>
+</div>
+
+<!-- ACTION SHEET -->
+<div id="sheet-overlay" onclick="closeSheet(event)">
+  <div id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">הוסף רשומה</div>
+
+    <div class="sheet-section">📤 הוצאה</div>
+    <div class="sheet-btn" onclick="sheetAction('cam-expense')">
+      <div class="sheet-btn-ico sbi-cam">📸</div>
+      <div><div class="sheet-btn-txt">צלם חשבונית הוצאה</div><div class="sheet-btn-sub">מצלמה → AI → Drive + Sheets</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('file-expense')">
+      <div class="sheet-btn-ico sbi-exp">📄</div>
+      <div><div class="sheet-btn-txt">העלה קובץ הוצאה</div><div class="sheet-btn-sub">PDF / תמונה → AI → Drive + Sheets</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('folder-expense')">
+      <div class="sheet-btn-ico sbi-exp">📂</div>
+      <div><div class="sheet-btn-txt">תיקיית הוצאות מקומית</div><div class="sheet-btn-sub">כל הקבצים בבת אחת</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('drive-expense')">
+      <div class="sheet-btn-ico sbi-dr">☁️</div>
+      <div><div class="sheet-btn-txt">סרוק תיקיית Drive — הוצאות</div><div class="sheet-btn-sub">קורא קבצים קיימים מ-Drive</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('manual-expense')">
+      <div class="sheet-btn-ico sbi-man">✏️</div>
+      <div><div class="sheet-btn-txt">הזנה ידנית — הוצאה</div><div class="sheet-btn-sub">מלא את הפרטים בעצמך</div></div>
+    </div>
+
+    <div class="sheet-divider"></div>
+    <div class="sheet-section">📥 הכנסה</div>
+    <div class="sheet-btn" onclick="sheetAction('cam-income')">
+      <div class="sheet-btn-ico sbi-cam">📸</div>
+      <div><div class="sheet-btn-txt">צלם חשבונית הכנסה</div><div class="sheet-btn-sub">מצלמה → AI → Drive + Sheets</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('file-income')">
+      <div class="sheet-btn-ico sbi-inc">📄</div>
+      <div><div class="sheet-btn-txt">העלה קובץ הכנסה</div><div class="sheet-btn-sub">PDF / תמונה → AI → Drive + Sheets</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('folder-income')">
+      <div class="sheet-btn-ico sbi-inc">📁</div>
+      <div><div class="sheet-btn-txt">תיקיית הכנסות מקומית</div><div class="sheet-btn-sub">כל הקבצים בבת אחת</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('drive-income')">
+      <div class="sheet-btn-ico sbi-dr">☁️</div>
+      <div><div class="sheet-btn-txt">סרוק תיקיית Drive — הכנסות</div><div class="sheet-btn-sub">קורא קבצים קיימים מ-Drive</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('manual-income')">
+      <div class="sheet-btn-ico sbi-man">✏️</div>
+      <div><div class="sheet-btn-txt">הזנה ידנית — הכנסה</div><div class="sheet-btn-sub">מלא את הפרטים בעצמך</div></div>
+    </div>
+
+    <div class="sheet-divider"></div>
+    <div class="sheet-section">📋 דוח שנתי</div>
+    <div class="sheet-btn" onclick="sheetAction('cam-doc')">
+      <div class="sheet-btn-ico sbi-cam">📸</div>
+      <div><div class="sheet-btn-txt">צלם מסמך לדוח שנתי</div><div class="sheet-btn-sub">טופס 106 / ניכוי מס / תרומה</div></div>
+    </div>
+    <div class="sheet-btn" onclick="sheetAction('file-doc')">
+      <div class="sheet-btn-ico sbi-doc">📋</div>
+      <div><div class="sheet-btn-txt">העלה מסמך לדוח שנתי</div><div class="sheet-btn-sub">נשמר בתיקיית Drive ייעודית</div></div>
+    </div>
+
+    <div style="padding:12px 18px 4px">
+      <button class="btn btn-o" onclick="closeSheet()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- DUPLICATE MODAL -->
+<div id="dup-modal">
+  <div id="dup-box">
+    <h3>⚠️ חשבונית כפולה?</h3>
+    <p id="dup-msg">פרטי החשבונית הזו כבר קיימים במערכת.<br>האם ברצונך להוסיף או לדלג?</p>
+    <div class="gap8">
+      <button class="btn btn-g" onclick="dupDecide('add')">הוסף בכל זאת</button>
+      <button class="btn btn-o" onclick="dupDecide('skip')">דלג על חשבונית זו</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANUAL ENTRY -->
+<div class="sc off" id="sc-manual">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="icon-btn" onclick="cancel()">←</div>
+      <div><h1 id="man-title">הזנה ידנית</h1><div class="sub">כל השדות יועברו לספר תקבולים</div></div>
+    </div>
+  </div>
+  <div class="body pad">
+    <div class="mt16 gap8">
+      <div class="row2">
+        <div class="field"><label>תאריך</label><input id="m-date" type="date"/></div>
+        <div class="field"><label>מס׳ חשבונית</label><input id="m-invnum" placeholder="12345"/></div>
+      </div>
+      <div class="field"><label>ספק / לקוח</label><input id="m-sup" placeholder="שם החברה"/></div>
+      <div class="field"><label>תיאור</label><textarea id="m-desc" placeholder="תיאור קצר"></textarea></div>
+      <div class="field"><label>קטגוריה</label>
+        <select id="m-cat">
+          <option>ציוד משרדי</option><option>שיווק ופרסום</option>
+          <option>תקשורת ואינטרנט</option><option>שירותים מקצועיים</option>
+          <option>נסיעות ותחבורה</option><option>רכב (45% מוכר)</option>
+          <option>חניה (100% מוכר)</option><option>אירוח עסקי (80% מוכר)</option>
+          <option>טלפון (חלקי מוכר)</option><option>שכירות</option>
+          <option>חשמל ומים</option><option>תוכנה ורישיונות</option>
+          <option>בריאות</option><option>מזון וקייטרינג</option>
+          <option>ביגוד (לא מוכר)</option><option>אחר</option>
+        </select>
+      </div>
+      <div class="row2">
+        <div class="field"><label>לפני מע״מ (₪)</label><input id="m-pre" type="number" inputmode="decimal" placeholder="0" oninput="calcVat()"/></div>
+        <div class="field"><label>מע״מ %</label><input id="m-vatpct" type="number" value="18" oninput="calcVat()"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>מע״מ (₪)</label><input id="m-vat" type="number" inputmode="decimal" placeholder="0" oninput="calcTotal()"/></div>
+        <div class="field"><label>סה״כ (₪)</label><input id="m-total" type="number" inputmode="decimal" placeholder="0"/></div>
+      </div>
+      <div class="field"><label>הערות</label><input id="m-note" placeholder="אופציונלי"/></div>
+      <button class="btn btn-g mt8" onclick="saveManual()">✓ שמור לספר תקבולים</button>
+      <button class="btn btn-ghost" onclick="cancel()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="sc off" id="sc-confirm">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="icon-btn" onclick="cancel()">←</div>
+      <div><h1>בדיקה ואישור</h1><div class="sub" id="conf-fn" style="max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div>
+    </div>
+  </div>
+  <div class="body pad">
+    <div class="mt16">
+      <div class="card" id="conf-prev"></div>
+      <div class="mt16 gap8">
+        <div class="field"><label>ספק / לקוח</label><input id="e-sup"/></div>
+        <div class="row2">
+          <div class="field"><label>סה״כ (₪)</label><input id="e-tot" type="number" inputmode="decimal"/></div>
+          <div class="field"><label>תאריך</label><input id="e-date" type="text" placeholder="DD/MM/YYYY"/></div>
+        </div>
+        <div class="field"><label>קטגוריה</label>
+          <select id="e-cat">
+            <option>ציוד משרדי</option><option>שיווק ופרסום</option>
+            <option>תקשורת ואינטרנט</option><option>שירותים מקצועיים</option>
+            <option>נסיעות ותחבורה</option><option>רכב (45% מוכר)</option>
+            <option>חניה (100% מוכר)</option><option>אירוח עסקי (80% מוכר)</option>
+            <option>טלפון (חלקי מוכר)</option><option>שכירות</option>
+            <option>חשמל ומים</option><option>תוכנה ורישיונות</option>
+            <option>בריאות</option><option>מזון וקייטרינג</option>
+            <option>ביגוד (לא מוכר)</option><option>אחר</option>
+          </select>
+        </div>
+        <div class="field"><label>הערות</label><input id="e-note" placeholder="אופציונלי"/></div>
+      </div>
+      <button class="btn btn-g mt16" id="conf-save-btn" onclick="confirmSave()">✓ שמור ל-Drive ו-Sheets</button>
+      <button class="btn btn-ghost mt8" onclick="cancel()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESSING -->
+<div class="sc off" id="sc-proc">
+  <div class="proc-wrap">
+    <div class="spin"></div>
+    <div style="font-size:17px;font-weight:600" id="proc-t">מעבד...</div>
+    <div style="font-size:13px;color:var(--t2);text-align:center;line-height:1.5;max-width:260px" id="proc-s"></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div style="font-size:12px;color:var(--t3)" id="proc-c"></div>
+  </div>
+</div>
+
+<!-- DRIVE SCAN -->
+<div class="sc off" id="sc-drive">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="icon-btn" onclick="cancel()">←</div>
+      <div><h1 id="drive-title">סריקת Drive</h1><div class="sub" id="drive-sub"></div></div>
+    </div>
+  </div>
+  <div class="body pad">
+    <div class="mt16">
+      <div class="card" id="drive-folder-sel">
+        <div class="sec-lbl">שם התיקייה ב-Drive</div>
+        <div class="field"><input id="drive-folder-name" placeholder='לדוגמה: הוצאות 2025'/></div>
+        <p style="font-size:12px;color:var(--t3);margin-bottom:12px">הזן את השם המדויק כפי שמופיע ב-Drive</p>
+        <button class="btn btn-g" onclick="startDriveScan()">סרוק תיקייה</button>
+      </div>
+      <div id="drive-files-list" class="mt16" style="display:none">
+        <div class="sec-lbl" id="drive-files-lbl"></div>
+        <div class="card" id="drive-files"></div>
+        <button class="btn btn-g mt12" id="drive-proc-btn" onclick="processDriveFiles()">עבד את כל הקבצים</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BATCH RESULT -->
+<div class="sc off" id="sc-batch">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="icon-btn" onclick="go('sc-main')">✕</div>
+      <div><h1>עיבוד הסתיים</h1></div>
+    </div>
+  </div>
+  <div class="body pad"><div class="mt16" id="batch-body"></div><button class="btn btn-g mt16" onclick="go('sc-main')">חזרה לראשי</button></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="sc off" id="sc-settings">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="icon-btn" onclick="go('sc-main')">←</div>
+      <div><h1>הגדרות</h1></div>
+    </div>
+  </div>
+  <div class="body pad">
+    <div class="mt16 gap8">
+      <div class="card">
+        <div class="sec-lbl">מפתחות API</div>
+        <div class="field"><label>Anthropic API Key</label><input id="s-akey" type="password"/></div>
+        <div class="field"><label>Google Client ID</label><input id="s-cid"/></div>
+        <button class="btn btn-g mt8" onclick="saveSettings()">שמור</button>
+      </div>
+      <div class="card">
+        <div class="sec-lbl">סטטוס</div>
+        <div class="set-row"><span style="font-size:14px">Google</span><span id="st-g" style="font-size:13px;color:var(--t2)"></span></div>
+        <div class="set-row"><span style="font-size:14px">Sheets</span><span id="st-s" style="font-size:13px;color:var(--t2)"></span></div>
+        <div class="set-row"><span style="font-size:14px">Drive</span><span id="st-d" style="font-size:13px;color:var(--t2)"></span></div>
+        <button class="btn btn-o mt12" onclick="doAuth()">חבר מחדש ל-Google</button>
+      </div>
+      <div class="card">
+        <div class="sec-lbl">שנה חדשה / איפוס</div>
+        <button class="btn btn-o" onclick="resetSheet()">אפס לשנה חדשה</button>
+        <button class="btn btn-r mt8" onclick="resetAll()">איפוס מלא</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none" onchange="onCamFile(this)">
+<input type="file" id="inp-file" accept=".pdf,image/*" multiple style="display:none" onchange="onUploadFile(this)">
+<input type="file" id="inp-folder" webkitdirectory multiple style="display:none" onchange="onFolderInput(this)">
+<div id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+// ─── CATEGORIES ───────────────────────────────────────────────────────
+const CATS=['ציוד משרדי','שיווק ופרסום','תקשורת ואינטרנט','שירותים מקצועיים','נסיעות ותחבורה','רכב (45% מוכר)','חניה (100% מוכר)','אירוח עסקי (80% מוכר)','טלפון (חלקי מוכר)','שכירות','חשמל ומים','תוכנה ורישיונות','בריאות','מזון וקייטרינג','ביגוד (לא מוכר)','אחר'];
+const SYS_CAT=CATS.join('|');
+
+// ─── STATE ────────────────────────────────────────────────────────────
+const A={cfg:{cid:'',akey:''},tok:null,email:'',sheets:{id:null,year:null},drive:{root:null,exp:null,inc:null,cam:null,doc:null},inv:[],pend:{files:[],type:null,isCam:false},ext:null,driveFiles:[],driveType:null,tab:'all'};
+let _dupResolve=null;
+
+function load(){
+  try{Object.assign(A.cfg,JSON.parse(localStorage.iCfg||'{}'))}catch{}
+  try{A.inv=JSON.parse(localStorage.iData||'[]')}catch{}
+  try{Object.assign(A.sheets,JSON.parse(localStorage.iSh||'{}'))}catch{}
+  try{Object.assign(A.drive,JSON.parse(localStorage.iDr||'{}'))}catch{}
+}
+function save(){
+  localStorage.iCfg=JSON.stringify(A.cfg);
+  localStorage.iData=JSON.stringify(A.inv);
+  localStorage.iSh=JSON.stringify(A.sheets);
+  localStorage.iDr=JSON.stringify(A.drive);
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────
+let _cur='sc-wizard';
+function go(id){
+  document.getElementById(_cur)?.classList.add('off');
+  document.getElementById(id)?.classList.remove('off');
+  _cur=id;
+  if(id==='sc-main')renderMain();
+  if(id==='sc-settings')fillSettings();
+}
+function cancel(){A.pend={files:[],type:null,isCam:false};A.ext=null;go('sc-main');}
+
+// ─── DUPLICATE CHECK ──────────────────────────────────────────────────
+function isDuplicate(data){
+  if(!data.invoice_number&&!data.total)return false;
+  return A.inv.some(i=>
+    i.invoice_number&&data.invoice_number&&
+    i.invoice_number===data.invoice_number&&
+    i.date===data.date&&
+    Math.abs((Number(i.total)||0)-(Number(data.total)||0))<1
+  );
+}
+function askDuplicate(data){
+  return new Promise(res=>{
+    _dupResolve=res;
+    const sup=data.supplier||'';
+    const num=data.invoice_number||'';
+    document.getElementById('dup-msg').innerHTML=`פרטי החשבונית הזו כבר קיימים במערכת:<br><strong>${sup} · מס׳ ${num} · ${fmt(data.total)}</strong><br><br>האם תרצה להוסיף או לדלג על חשבונית זו?`;
+    document.getElementById('dup-modal').classList.add('open');
+  });
+}
+function dupDecide(choice){
+  document.getElementById('dup-modal').classList.remove('open');
+  if(_dupResolve){_dupResolve(choice);_dupResolve=null;}
+}
+
+// ─── ACTION SHEET ──────────────────────────────────────────────────────
+function openSheet(){
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('fab').style.display='none';
+}
+function closeSheet(e){
+  if(e&&e.target!==document.getElementById('sheet-overlay'))return;
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('fab').style.display='';
+}
+function sheetAction(action){
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('fab').style.display='';
+  const [mode]=action.split('-',1);
+  if(mode==='cam'){_sheetAction(action);}
+  else{setTimeout(()=>_sheetAction(action),320);}
+}
+function _sheetAction(action){
+  const parts=action.split('-');
+  const mode=parts[0];
+  const type=parts.slice(1).join('-');
+  A.pend.type=type==='expense'?'expense':type==='income'?'income':'doc';
+  if(mode==='cam'){A.pend.isCam=true;document.getElementById('inp-cam').click();}
+  else if(mode==='file'){A.pend.isCam=false;document.getElementById('inp-file').click();}
+  else if(mode==='folder'){A.pend.isCam=false;document.getElementById('inp-folder').click();}
+  else if(mode==='drive'){openDriveScan(A.pend.type);}
+  else if(mode==='manual'){openManual(A.pend.type);}
+}
+
+// ─── MANUAL ENTRY ──────────────────────────────────────────────────────
+function openManual(type){
+  document.getElementById('man-title').textContent='הזנה ידנית — '+(type==='income'?'הכנסה':type==='doc'?'מסמך לדוח':'הוצאה');
+  const today=new Date();
+  document.getElementById('m-date').value=today.toISOString().split('T')[0];
+  ['m-invnum','m-sup','m-desc','m-pre','m-vat','m-total','m-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('m-vatpct').value='18';
+  document.getElementById('m-cat').value='אחר';
+  go('sc-manual');
+}
+function calcVat(){
+  const pre=parseFloat(document.getElementById('m-pre').value)||0;
+  const pct=parseFloat(document.getElementById('m-vatpct').value)||18;
+  const vat=Math.round(pre*pct/100);
+  document.getElementById('m-vat').value=vat||'';
+  document.getElementById('m-total').value=(pre+vat)||'';
+}
+function calcTotal(){
+  const pre=parseFloat(document.getElementById('m-pre').value)||0;
+  const vat=parseFloat(document.getElementById('m-vat').value)||0;
+  document.getElementById('m-total').value=(pre+vat)||'';
+}
+async function saveManual(){
+  const sup=document.getElementById('m-sup').value.trim();
+  if(!sup){toast('חסר שם ספק / לקוח');return;}
+  const rawDate=document.getElementById('m-date').value;
+  const [y,m,d]=rawDate.split('-');
+  const dateHe=d+'/'+m+'/'+y;
+  const rec={id:Date.now(),type:A.pend.type,isManual:true,date:dateHe,invoice_number:document.getElementById('m-invnum').value.trim(),supplier:sup,description:document.getElementById('m-desc').value.trim(),category:document.getElementById('m-cat').value,amount_before_vat:parseFloat(document.getElementById('m-pre').value)||0,vat:parseFloat(document.getElementById('m-vat').value)||0,total:parseFloat(document.getElementById('m-total').value)||0,currency:'ILS',notes:document.getElementById('m-note').value.trim()};
+  if(isDuplicate(rec)){const d=await askDuplicate(rec);if(d==='skip'){toast('חשבונית דולגה');go('sc-main');return;}}
+  go('sc-proc');setProc('שומר ב-Sheets...',null,50);
+  try{await appendSheet(rec,'');A.inv.unshift(rec);save();toast('נשמר ✓');go('sc-main');}
+  catch(e){toast('שגיאה: '+e.message);go('sc-main');}
+}
+
+// ─── FILE INPUTS ───────────────────────────────────────────────────────
+function onCamFile(inp){const f=Array.from(inp.files);inp.value='';if(!f.length)return;A.pend.files=f;A.pend.isCam=true;runSingle(f[0]);}
+function onUploadFile(inp){const f=Array.from(inp.files);inp.value='';if(!f.length)return;A.pend.files=f;A.pend.isCam=false;f.length>1?runBatch():runSingle(f[0]);}
+function onFolderInput(inp){const f=Array.from(inp.files).filter(x=>x.type==='application/pdf'||x.type.startsWith('image/'));inp.value='';if(!f.length){toast('אין קבצים תואמים');return;}A.pend.files=f;A.pend.isCam=false;runBatch();}
+
+// ─── SINGLE FLOW ─────────────────────────────────────────────────────
+async function runSingle(file){
+  const isDoc=A.pend.type==='doc';
+  if(isDoc){
+    // For doc type — just upload to Drive, no AI extraction
+    go('sc-proc');setProc('שומר מסמך ל-Drive...',file.name,50);
+    try{
+      const url=await uploadToDrive(file,'doc');
+      const rec={id:Date.now(),type:'doc',supplier:file.name,date:new Date().toLocaleDateString('he-IL'),description:'מסמך לדוח שנתי',total:0,driveUrl:url,category:'דוח שנתי',currency:'ILS'};
+      A.inv.unshift(rec);save();toast('מסמך נשמר ✓');go('sc-main');
+    }catch(e){toast('שגיאה: '+e.message);go('sc-main');}
+    return;
+  }
+  go('sc-proc');setProc('קורא חשבונית עם AI...',file.name,40);
+  try{const data=await extract(file);A.ext={...data,type:A.pend.type,file,isCam:A.pend.isCam};showConfirm(file,data);}
+  catch(e){toast('שגיאת AI: '+e.message);go('sc-main');}
+}
+function showConfirm(file,data){
+  const type=A.pend.type;
+  document.getElementById('conf-fn').textContent=file.name;
+  document.getElementById('conf-prev').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span class="badge ${type==='income'?'badge-g':'badge-a'}">${type==='income'?'📥 הכנסה':'📤 הוצאה'}</span>
+      <span class="money">${fmt(data.total)}</span>
+    </div>
+    <div class="dr"><span class="dr-lbl">מס׳ חשבונית</span><span class="dr-val">${data.invoice_number||'—'}</span></div>
+    <div class="dr"><span class="dr-lbl">לפני מע״מ</span><span class="dr-val">${fmt(data.amount_before_vat)}</span></div>
+    <div class="dr"><span class="dr-lbl">מע״מ</span><span class="dr-val">${fmt(data.vat)}</span></div>
+    ${A.pend.isCam?'<div style="font-size:11px;color:var(--b);margin-top:8px">📸 הצילום יועלה לתיקיית "חשבוניות שצולמו דרך האפליקציה"</div>':''}
+  `;
+  document.getElementById('e-sup').value=data.supplier||'';
+  document.getElementById('e-tot').value=data.total||0;
+  document.getElementById('e-date').value=data.date||'';
+  document.getElementById('e-cat').value=CATS.includes(data.category)?data.category:'אחר';
+  document.getElementById('e-note').value='';
+  go('sc-confirm');
+}
+async function confirmSave(){
+  const ex=A.ext;if(!ex)return;
+  const fin={...ex,supplier:document.getElementById('e-sup').value,total:parseFloat(document.getElementById('e-tot').value)||0,date:document.getElementById('e-date').value,category:document.getElementById('e-cat').value,notes:document.getElementById('e-note').value};
+  if(isDuplicate(fin)){
+    const d=await askDuplicate(fin);
+    if(d==='skip'){toast('חשבונית דולגה');go('sc-main');return;}
+  }
+  go('sc-proc');
+  try{
+    const dest=fin.isCam?'cam':fin.type;
+    setProc(fin.isCam?'מעלה צילום ל-Drive...':'שומר קובץ ב-Drive...',fin.file.name,35);
+    const url=await uploadToDrive(fin.file,dest);
+    setProc('מעדכן ספר תקבולים...',null,75);
+    await appendSheet(fin,url);
+    const rec={...fin,driveUrl:url,id:Date.now()};delete rec.file;
+    A.inv.unshift(rec);save();toast('נשמר ✓');go('sc-main');
+  }catch(e){toast('שגיאה: '+e.message);go('sc-main');}
+}
+
+// ─── BATCH FLOW ───────────────────────────────────────────────────────
+async function runBatch(){
+  const files=A.pend.files,type=A.pend.type;
+  go('sc-proc');
+  const ok=[],fail=[],skipped=[];
+  for(let i=0;i<files.length;i++){
+    setProc(`מעבד ${i+1} מתוך ${files.length}`,files[i].name,Math.round(i/files.length*100),`${i+1} / ${files.length}`);
+    try{
+      const data=await extract(files[i]);
+      if(isDuplicate(data)){skipped.push({name:files[i].name,supplier:data.supplier});continue;}
+      const url=await uploadToDrive(files[i],type);
+      const rec={...data,type,driveUrl:url,id:Date.now()+i};
+      await appendSheet(rec,url);A.inv.unshift(rec);
+      ok.push({name:files[i].name,supplier:data.supplier,total:data.total});
+    }catch(e){fail.push({name:files[i].name,err:e.message});}
+  }
+  save();showBatch(ok,fail,skipped);
+}
+function showBatch(ok,fail,skipped=[]){
+  const total=ok.reduce((s,r)=>s+(r.total||0),0);
+  document.getElementById('batch-body').innerHTML=`
+    <div class="card">
+      <div class="dr"><span class="dr-lbl">הצליחו</span><span style="color:var(--g);font-weight:700">${ok.length} קבצים</span></div>
+      ${skipped.length?`<div class="dr"><span class="dr-lbl">כפילויות שדולגו</span><span style="color:var(--a)">${skipped.length}</span></div>`:''}
+      ${fail.length?`<div class="dr"><span class="dr-lbl">נכשלו</span><span style="color:var(--r)">${fail.length}</span></div>`:''}
+      <div class="dr"><span class="dr-lbl">סה״כ</span><span class="money">${fmt(total)}</span></div>
+    </div>
+    ${ok.length?`<div class="mt16"><div class="sec-lbl">נוספו לספר תקבולים</div>${ok.map(r=>`<div class="item" style="padding:10px 0"><div class="item-ico ico-inc" style="font-size:14px">✓</div><div class="item-inf"><div class="item-sup">${r.supplier||r.name}</div></div><div class="item-amt amt-inc">${fmt(r.total)}</div></div>`).join('')}</div>`:''}
+    ${skipped.length?`<div class="mt16"><div class="sec-lbl">דולגו — כפילויות</div>${skipped.map(r=>`<div class="item" style="padding:8px 0"><div class="item-inf"><div class="item-sup" style="color:var(--a)">⚠ ${r.supplier||r.name}</div></div></div>`).join('')}</div>`:''}
+    ${fail.length?`<div class="mt16"><div class="sec-lbl">שגיאות</div>${fail.map(r=>`<div class="item" style="padding:8px 0"><div class="item-inf"><div class="item-sup" style="color:var(--t2)">${r.name}</div><div class="item-meta" style="color:var(--r)">${r.err.slice(0,60)}</div></div></div>`).join('')}</div>`:''}`;
+  go('sc-batch');
+}
+
+// ─── DRIVE SCAN ───────────────────────────────────────────────────────
+function openDriveScan(type){
+  A.driveType=type;
+  document.getElementById('drive-title').textContent='סריקת Drive — '+(type==='income'?'הכנסות':'הוצאות');
+  document.getElementById('drive-sub').textContent='בחר תיקייה קיימת ב-Drive שלך';
+  document.getElementById('drive-folder-name').value=type==='income'?'הכנסות':'הוצאות';
+  document.getElementById('drive-files-list').style.display='none';
+  document.getElementById('drive-proc-btn').disabled=false;
+  A.driveFiles=[];
+  go('sc-drive');
+}
+async function startDriveScan(){
+  const name=document.getElementById('drive-folder-name').value.trim();
+  if(!name){toast('הזן שם תיקייה');return;}
+  go('sc-proc');setProc('מחפש תיקייה ב-Drive...',name,30);
+  try{
+    const fid=await findDriveFolder(name);
+    setProc('טוען רשימת קבצים...',null,60);
+    const files=await listDriveFiles(fid);
+    if(!files.length){toast('לא נמצאו קבצים');go('sc-drive');return;}
+    A.driveFiles=files;
+    go('sc-drive');
+    document.getElementById('drive-files-list').style.display='block';
+    document.getElementById('drive-files-lbl').textContent=files.length+' קבצים נמצאו';
+    document.getElementById('drive-files').innerHTML=files.map((f,i)=>`
+      <div class="drive-file" id="dff-${i}">
+        <span class="drive-file-name">📄 ${f.name}</span>
+        <span class="drive-file-status dfs-wait" id="dfs-${i}">ממתין</span>
+      </div>`).join('');
+  }catch(e){toast('שגיאה: '+e.message);go('sc-drive');}
+}
+async function processDriveFiles(){
+  document.getElementById('drive-proc-btn').disabled=true;
+  await ensureToken();
+  const ok=[],fail=[],skipped=[];
+  for(let i=0;i<A.driveFiles.length;i++){
+    const f=A.driveFiles[i];
+    const statusEl=document.getElementById('dfs-'+i);
+    statusEl.className='drive-file-status dfs-proc';statusEl.textContent='מעבד...';
+    try{
+      const blob=await downloadDriveFile(f.id,f.mimeType);
+      const file=new File([blob],f.name,{type:f.mimeType||'application/octet-stream'});
+      const data=await extract(file);
+      if(isDuplicate(data)){
+        statusEl.className='drive-file-status dfs-skip';statusEl.textContent='כפילות';
+        skipped.push({name:f.name,supplier:data.supplier});continue;
+      }
+      const rec={...data,type:A.driveType,driveUrl:f.webViewLink||'',id:Date.now()+i};
+      await appendSheet(rec,rec.driveUrl);A.inv.unshift(rec);
+      statusEl.className='drive-file-status dfs-ok';statusEl.textContent='✓';
+      ok.push({name:f.name,supplier:data.supplier,total:data.total});
+    }catch(e){
+      statusEl.className='drive-file-status dfs-err';statusEl.textContent=e.message.slice(0,20);
+      fail.push({name:f.name,err:e.message});
+    }
+  }
+  save();showBatch(ok,fail,skipped);
+}
+
+// ─── GOOGLE AUTH ─────────────────────────────────────────────────────
+function doAuth(onSuccess){
+  if(!window.google){toast('טוען...');setTimeout(()=>doAuth(onSuccess),800);return;}
+  google.accounts.oauth2.initTokenClient({
+    client_id:A.cfg.cid,
+    scope:'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets email profile',
+    callback:async r=>{
+      if(r.error){toast('שגיאת כניסה: '+r.error);return;}
+      A.tok=r.access_token;A.tokTime=Date.now();
+      try{const u=await gf('https://www.googleapis.com/oauth2/v3/userinfo');A.email=u.email||'';}catch{}
+      if(onSuccess)onSuccess();else go('sc-main');
+    }
+  }).requestAccessToken();
+}
+async function ensureToken(){
+  const age=(Date.now()-(A.tokTime||0))/1000/60;
+  if(age>50){
+    await new Promise(res=>{
+      google.accounts.oauth2.initTokenClient({
+        client_id:A.cfg.cid,
+        scope:'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets email profile',
+        prompt:'',
+        callback:r=>{if(!r.error){A.tok=r.access_token;A.tokTime=Date.now();}res();}
+      }).requestAccessToken();
+    });
+  }
+}
+
+// ─── DRIVE HELPERS ───────────────────────────────────────────────────
+async function gf(url,o={}){
+  const r=await fetch(url,{...o,headers:{'Authorization':'Bearer '+A.tok,'Content-Type':'application/json',...(o.headers||{})}});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function mkDir(name,pid){
+  const q=encodeURIComponent(`name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false${pid?` and '${pid}' in parents`:''}`);
+  const r=await gf(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
+  if(r.files?.length)return r.files[0].id;
+  const b={name,mimeType:'application/vnd.google-apps.folder'};if(pid)b.parents=[pid];
+  return(await gf('https://www.googleapis.com/drive/v3/files',{method:'POST',body:JSON.stringify(b)})).id;
+}
+async function ensureDrive(){
+  if(A.drive.root&&A.drive.cam&&A.drive.doc)return;
+  const yr=new Date().getFullYear();
+  A.drive.root=A.drive.root||await mkDir('חשבוניות '+yr);
+  A.drive.exp=A.drive.exp||await mkDir('הוצאות',A.drive.root);
+  A.drive.inc=A.drive.inc||await mkDir('הכנסות',A.drive.root);
+  A.drive.cam=A.drive.cam||await mkDir('חשבוניות שצולמו דרך האפליקציה',A.drive.root);
+  A.drive.doc=A.drive.doc||await mkDir('מסמכים לדוח שנתי',A.drive.root);
+  save();
+}
+async function uploadToDrive(file,dest){
+  await ensureDrive();
+  const pid=dest==='cam'?A.drive.cam:dest==='doc'?A.drive.doc:dest==='income'?A.drive.inc:A.drive.exp;
+  const fm=new FormData();
+  fm.append('metadata',new Blob([JSON.stringify({name:file.name,parents:[pid]})],{type:'application/json'}));
+  fm.append('file',file);
+  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{method:'POST',headers:{'Authorization':'Bearer '+A.tok},body:fm});
+  if(!r.ok)throw new Error('Drive upload failed '+r.status);
+  const d=await r.json();return d.webViewLink||'https://drive.google.com/file/d/'+d.id;
+}
+async function findDriveFolder(name){
+  const q=encodeURIComponent(`name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const r=await gf(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&corpora=user`);
+  if(!r.files?.length)throw new Error(`תיקייה "${name}" לא נמצאה`);
+  return r.files[0].id;
+}
+async function listDriveFiles(folderId){
+  const q=encodeURIComponent(`'${folderId}' in parents and trashed=false and (mimeType contains 'image/' or mimeType='application/pdf')`);
+  const r=await gf(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,webViewLink)&pageSize=100`);
+  return r.files||[];
+}
+async function downloadDriveFile(fileId,mimeType,attempt=0){
+  await new Promise(r=>setTimeout(r,300+attempt*500));
+  const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,{
+    headers:{'Authorization':'Bearer '+A.tok},
+    redirect:'follow'
+  });
+  if(!r.ok){
+    if((r.status===429||r.status===503)&&attempt<3){
+      await new Promise(r=>setTimeout(r,2000*(attempt+1)));
+      return downloadDriveFile(fileId,mimeType,attempt+1);
+    }
+    let msg='שגיאה '+r.status;
+    try{const t=await r.text();const j=JSON.parse(t);msg=j?.error?.message||msg;}catch{}
+    throw new Error(msg);
+  }
+  const blob=await r.blob();
+  return new Blob([blob],{type:mimeType||blob.type||'image/jpeg'});
+}
+
+// ─── SHEETS ──────────────────────────────────────────────────────────
+const HDR=['תאריך','מס׳ חשבונית','ספק','תיאור','קטגוריה','סוג','הזנה','לפני מע"מ','מע"מ','סה"כ','מטבע','הערות','Drive'];
+async function ensureSheet(){
+  const yr=new Date().getFullYear();
+  if(A.sheets.id&&A.sheets.year===yr)return A.sheets.id;
+  const c=await gf('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',body:JSON.stringify({
+    properties:{title:'ספר תקבולים '+yr},
+    sheets:[{properties:{title:'הוצאות'}},{properties:{title:'הכנסות'}},{properties:{title:'הזנות ידניות'}},{properties:{title:'מסמכים לדוח שנתי'}},{properties:{title:'סיכום'}}]
+  })});
+  const id=c.spreadsheetId;
+  for(const sh of['הוצאות','הכנסות','הזנות ידניות','מסמכים לדוח שנתי']){
+    await gf(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(sh)}!A1?valueInputOption=RAW`,{method:'PUT',body:JSON.stringify({values:[HDR]})});
+  }
+  A.sheets={id,year:yr};save();return id;
+}
+async function appendSheet(data,driveUrl){
+  const id=await ensureSheet();
+  const type=data.type;
+  const shMain=type==='income'?'הכנסות':type==='doc'?'מסמכים לדוח שנתי':'הוצאות';
+  const row=[data.date||'',data.invoice_number||'',data.supplier||'',data.description||'',data.category||'',type==='income'?'הכנסה':type==='doc'?'מסמך':'הוצאה',data.isManual?'ידנית':'סריקה',data.amount_before_vat||0,data.vat||0,data.total||0,data.currency||'ILS',data.notes||'',driveUrl||''];
+  await gf(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(shMain)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',body:JSON.stringify({values:[row]})});
+  if(data.isManual&&type!=='doc'){
+    await gf(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent('הזנות ידניות')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',body:JSON.stringify({values:[row]})});
+  }
+}
+
+// ─── CLAUDE API ───────────────────────────────────────────────────────
+const SYS=`Extract invoice data from Hebrew or English documents. Return ONLY valid JSON (no markdown):\n{"date":"DD/MM/YYYY","invoice_number":"","supplier":"","description":"","amount_before_vat":0,"vat":0,"total":0,"currency":"ILS","category":"${SYS_CAT}"}`;
+async function extract(file){
+  const b64=await toB64(file);const isPDF=file.type==='application/pdf';
+  const mediaType=isPDF?'application/pdf':(file.type.startsWith('image/')?file.type:'image/jpeg');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':A.cfg.akey,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,
+      messages:[{role:'user',content:[{type:isPDF?'document':'image',source:{type:'base64',media_type:mediaType,data:b64}},{type:'text',text:'Extract.'}]}]})});
+  if(!r.ok)throw new Error('Claude '+r.status);
+  const d=await r.json();
+  const txt=(d.content||[]).map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+  return JSON.parse(txt);
+}
+
+// ─── MAIN / LIST ─────────────────────────────────────────────────────
+function renderMain(){
+  document.getElementById('main-email').textContent=A.email||'';
+  const inc=A.inv.filter(i=>i.type==='income').reduce((s,i)=>s+(Number(i.total)||0),0);
+  const exp=A.inv.filter(i=>i.type==='expense').reduce((s,i)=>s+(Number(i.total)||0),0);
+  document.getElementById('s-inc').textContent=fmt(inc);
+  document.getElementById('s-exp').textContent=fmt(exp);
+  const bal=inc-exp;
+  const bEl=document.getElementById('s-bal');
+  bEl.textContent=fmt(Math.abs(bal));
+  bEl.className='stat-val '+(bal>=0?'sv-g':'sv-a');
+  renderList();
+}
+function setTab(t){
+  A.tab=t;
+  ['all','exp','inc','man','doc'].forEach(x=>{
+    document.getElementById('tab-'+x)?.classList.toggle('on',
+      x===t||(x==='exp'&&t==='expense')||(x==='inc'&&t==='income')||(x==='man'&&t==='manual'));
+  });
+  renderList();
+}
+function renderList(){
+  let items=[...A.inv];
+  if(A.tab==='expense')items=items.filter(i=>i.type==='expense');
+  else if(A.tab==='income')items=items.filter(i=>i.type==='income');
+  else if(A.tab==='manual')items=items.filter(i=>i.isManual);
+  else if(A.tab==='doc')items=items.filter(i=>i.type==='doc');
+  const el=document.getElementById('main-list');
+  if(!items.length){el.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:4px">📄</div><p>אין רשומות עדיין.<br>לחץ + כדי להוסיף.</p></div>`;return;}
+  el.innerHTML=items.map(i=>{
+    const isInc=i.type==='income',isMan=i.isManual,isDoc=i.type==='doc';
+    const icoClass=isDoc?'ico-doc':isMan?'ico-man':isInc?'ico-inc':'ico-exp';
+    const ico=isDoc?'📋':isMan?'✏️':isInc?'📥':'📤';
+    const amtClass=isDoc?'amt-doc':isMan?'amt-man':isInc?'amt-inc':'amt-exp';
+    const tags=(isMan?'<span class="manual-tag">ידני</span>':'')+(isDoc?'<span class="doc-tag">דוח</span>':'');
+    return`<div class="item" onclick="openInv(${i.id})">
+      <div class="item-ico ${icoClass}">${ico}</div>
+      <div class="item-inf">
+        <div class="item-sup">${tags}${i.supplier||'—'}</div>
+        <div class="item-meta">${i.date||''} · ${i.category||''}</div>
+      </div>
+      <div class="item-amt ${amtClass}">${i.total?fmt(i.total):'—'}</div>
+    </div>`;
+  }).join('');
+}
+function openInv(id){const i=A.inv.find(x=>x.id===id);if(i?.driveUrl)window.open(i.driveUrl,'_blank');}
+
+// ─── SETTINGS ────────────────────────────────────────────────────────
+function fillSettings(){
+  document.getElementById('s-akey').value=A.cfg.akey||'';
+  document.getElementById('s-cid').value=A.cfg.cid||'';
+  const sg=document.getElementById('st-g');sg.textContent=A.tok?'מחובר ✓':'לא מחובר';sg.style.color=A.tok?'var(--g)':'var(--r)';
+  document.getElementById('st-s').textContent=A.sheets.id?'גיליון '+A.sheets.year+' ✓':'ייווצר אוטומטית';
+  document.getElementById('st-d').textContent=A.drive.root?'תיקיות קיימות ✓':'ייווצרו אוטומטית';
+}
+function saveSettings(){A.cfg.akey=document.getElementById('s-akey').value.trim();A.cfg.cid=document.getElementById('s-cid').value.trim();save();toast('נשמר ✓');}
+function resetSheet(){A.sheets={id:null,year:null};A.drive={root:null,exp:null,inc:null,cam:null,doc:null};save();toast('יווצר גיליון חדש');fillSettings();}
+function resetAll(){if(!confirm('לאפס הכל?'))return;localStorage.clear();location.reload();}
+
+// ─── WIZARD ──────────────────────────────────────────────────────────
+const WIZ=[
+  {t:'מפתח Anthropic',h:`<div class="mt16"><div class="note">ה-AI קורא חשבוניות בעברית ובאנגלית ומחלץ נתונים אוטומטית.</div><div class="mt16">
+    <div class="step-row"><div class="step-num">1</div><div class="step-txt"><h3>פתח Anthropic Console</h3></div></div>
+    <div class="link-chip" onclick="window.open('https://console.anthropic.com/settings/keys','_blank')">🔗 console.anthropic.com → API Keys</div>
+    <div class="step-row mt12"><div class="step-num">2</div><div class="step-txt"><h3>Create Key → העתק</h3><p>מתחיל ב-sk-ant-</p></div></div>
+    <div class="field mt12"><label>Anthropic API Key</label><input id="w-akey" type="password" placeholder="sk-ant-..."/></div>
+  </div></div>`},
+  {t:'Google Cloud — הפעלת APIs',h:`<div class="mt16"><div class="note">נדרש ל-Drive ו-Sheets.</div><div class="mt16">
+    <div class="step-row"><div class="step-num">1</div><div class="step-txt"><h3>פתח Google Cloud Console</h3></div></div>
+    <div class="link-chip" onclick="window.open('https://console.cloud.google.com','_blank')">🔗 console.cloud.google.com</div>
+    <div class="step-row mt12"><div class="step-num">2</div><div class="step-txt"><h3>צור פרויקט חדש</h3></div></div>
+    <div class="step-row"><div class="step-num">3</div><div class="step-txt"><h3>הפעל 2 APIs</h3></div></div>
+    <div class="link-chip" onclick="window.open('https://console.cloud.google.com/apis/library/drive.googleapis.com','_blank')">🔗 Drive API → Enable</div>
+    <div class="link-chip" onclick="window.open('https://console.cloud.google.com/apis/library/sheets.googleapis.com','_blank')">🔗 Sheets API → Enable</div>
+    <div class="step-row mt12"><div class="step-num">4</div><div class="step-txt"><h3>צור OAuth Client ID</h3><p>Credentials ← Create ← OAuth 2.0 ← Web Application</p></div></div>
+  </div></div>`},
+  {t:'GitHub Pages',h:`<div class="mt16"><div class="note">Google מחייב כתובת אינטרנט.</div><div class="mt16">
+    <div class="step-row"><div class="step-num">1</div><div class="step-txt"><h3>צור Repository</h3><p>שם: invoices · Public</p></div></div>
+    <div class="link-chip" onclick="window.open('https://github.com/new','_blank')">🔗 github.com/new</div>
+    <div class="step-row mt12"><div class="step-num">2</div><div class="step-txt"><h3>העלה קובץ ← הפעל Pages</h3><p>Settings ← Pages ← Branch: main</p></div></div>
+    <div class="field mt12"><label>שם משתמש GitHub</label><input id="w-gh" placeholder="yourname" oninput="updGH()"/></div>
+    <div class="copy-row"><input id="w-ghurl" readonly value="https://yourname.github.io/invoices/invoice-app.html"/><div class="copy-btn" onclick="navigator.clipboard?.writeText(document.getElementById('w-ghurl').value);toast('הועתק ✓')">העתק</div></div>
+  </div></div>`},
+  {t:'Google Client ID',h:`<div class="mt16"><div class="note">לאחר יצירת ה-OAuth Client — העתק את ה-Client ID.</div><div class="mt16">
+    <div class="link-chip" onclick="window.open('https://console.cloud.google.com/apis/credentials','_blank')">🔗 Credentials</div>
+    <div class="field mt12"><label>Google Client ID</label><input id="w-cid" placeholder="123456789.apps.googleusercontent.com"/></div>
+  </div></div>`},
+];
+let wStep=0;
+function renderWiz(){
+  document.getElementById('wiz-steps').innerHTML=WIZ.map((_,i)=>`<div class="wiz-step${i<=wStep?' done':''}"></div>`).join('');
+  document.getElementById('wiz-body').innerHTML=`<h2 style="font-size:16px;font-weight:600;padding:16px 0 0">${WIZ[wStep].t}</h2>${WIZ[wStep].h}
+    <div style="display:flex;gap:10px;margin-top:24px">
+      ${wStep>0?`<button class="btn btn-o" style="flex:1" onclick="wPrev()">← אחורה</button>`:''}
+      <button class="btn btn-g" style="flex:2" onclick="wNext()">${wStep===WIZ.length-1?'סיום ✓':'הבא →'}</button>
+    </div>`;
+  if(wStep===0&&document.getElementById('w-akey'))document.getElementById('w-akey').value=A.cfg.akey||'';
+  if(wStep===3&&document.getElementById('w-cid'))document.getElementById('w-cid').value=A.cfg.cid||'';
+}
+function wNext(){
+  if(wStep===0){const v=document.getElementById('w-akey')?.value.trim();if(!v){toast('הדבק API Key');return;}A.cfg.akey=v;save();}
+  if(wStep===3){const v=document.getElementById('w-cid')?.value.trim();if(!v){toast('הדבק Client ID');return;}A.cfg.cid=v;save();go('sc-auth');return;}
+  wStep=Math.min(wStep+1,WIZ.length-1);renderWiz();
+}
+function wPrev(){wStep=Math.max(0,wStep-1);renderWiz();}
+function updGH(){const u=document.getElementById('w-gh')?.value.trim()||'yourname';document.getElementById('w-ghurl').value=`https://${u}.github.io/invoices/invoice-app.html`;}
+
+// ─── UTILS ───────────────────────────────────────────────────────────
+function fmt(n){return'₪'+(Math.round(Number(n)||0)).toLocaleString('he-IL')}
+function toB64(f){return new Promise((r,j)=>{const rd=new FileReader();rd.onload=()=>r(rd.result.split(',')[1]);rd.onerror=j;rd.readAsDataURL(f);})}
+function setProc(t,s,p,c){document.getElementById('proc-t').textContent=t;document.getElementById('proc-s').textContent=s||'';document.getElementById('prog').style.width=(p||0)+'%';document.getElementById('proc-c').textContent=c||'';}
+let _tT;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(_tT);_tT=setTimeout(()=>el.classList.remove('show'),2600);}
+
+// ─── BOOT ────────────────────────────────────────────────────────────
+load();
+if(A.cfg.cid&&A.cfg.akey){go('sc-auth');}
+else{wStep=0;renderWiz();}
+</script>
+</body>
+</html>
